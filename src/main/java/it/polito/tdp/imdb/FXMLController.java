@@ -5,9 +5,11 @@
 package it.polito.tdp.imdb;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.imdb.model.Model;
+import it.polito.tdp.imdb.model.Movie;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -38,23 +40,59 @@ public class FXMLController {
     private TextField txtRank; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbMovie"
-    private ComboBox<?> cmbMovie; // Value injected by FXMLLoader
+    private ComboBox<Movie> cmbMovie; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
 
     @FXML
     void doCammino(ActionEvent event) {
+    	Movie m=this.cmbMovie.getValue();
+    	if(m!=null) {
+    		List<Movie> cammino=this.model.doRicorsione(m);
+    		this.txtResult.setText("cammino migliore trovato :\n");
+    		if(cammino==null) {
+    			this.txtResult.setText("nessun confinante");
+    		}
+    		for(Movie movie: cammino) {
+    			this.txtResult.appendText(movie+"\n");
+    			
+    		}
+    	}else {
+    		this.txtResult.setText("inserire un film!");
+    	}
 
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	this.cmbMovie.getItems().clear();
+    	String rankS=this.txtRank.getText();
+    	if(rankS=="") {
+    		this.txtResult.setText("inserire un rank");
+    		return;
+    	}
+    	try {
+    		double rank=Double.parseDouble(rankS);
+    		List<Movie> vertici=this.model.creaGrafo(rank);
+    		this.cmbMovie.getItems().addAll(vertici);
+    	}catch(NumberFormatException e) {
+    		e.printStackTrace();
+    		this.txtResult.setText("Inserire un numero!");
+    	}
     	
     }
 
     @FXML
     void doGradoMax(ActionEvent event) {
+    	Movie m=this.model.getGradoMassimo();
+    	if(m!=null) {
+    		int grado=this.model.getMassimo();
+    		this.txtResult.setText("Trovato Movie con grado Massimo: \n");
+    		this.txtResult.appendText(m+" grado: "+grado);
+    		return;
+    	}
+    	this.txtResult.setText("trovato nulla");
     	
     }
 
